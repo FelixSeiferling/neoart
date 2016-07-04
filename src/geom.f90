@@ -44,13 +44,13 @@
 !>  circgeom:  if isel =2 the parameters of circular geometry are 
 !>             suplied through this routine
 !--------------------------------------------------------------------
-subroutine geom(nmg,isel,ishot,rho,eps,bav,b2av,bi2a,rbt,bgradp, &
+subroutine geom(nmg,bav,b2av,bi2a,rbt,bgradp, &
                  & dpsidr,rnq,fc,gclass,fm,mmx,r2i)
-
+  use init, only: isel, ishot, rho, eps 
   implicit none
 
-  real rho, eps
-  integer nmaxgr, isel, nmg
+
+  integer nmaxgr, nmg
 
   parameter(nmaxgr = 1000)
 
@@ -61,7 +61,7 @@ subroutine geom(nmg,isel,ishot,rho,eps,bav,b2av,bi2a,rbt,bgradp, &
   real b(nmaxgr), theta(nmaxgr),sin1(nmaxgr),sin2(nmaxgr)
   real cos1(nmaxgr), cos2(nmaxgr), fm(nmaxgr), a(5)
 
-  integer ngr,mmx,i,j,nc,new_read,ishot
+  integer ngr,mmx,i,j,nc,new_read
   real raxis, rgeo, idlp, cosb2, sinb2, cosbl, sinbl
 
   dimension cosb2(3), sinb2(3), cosbl(3), sinbl(3)

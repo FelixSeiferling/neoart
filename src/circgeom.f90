@@ -3,7 +3,7 @@
 !> lar equilibrium. in principle it is the user responcibility
 !> to give the correct values of all the quantities. it is here
 !> used in a simple way. the desired parameters are saved and 
-!> the calls from geom than read out the quantities
+!> the calls from geom then read out the quantities
 !>   
 !> input  :  it       : control parameter (integer) if 
 !>                      1 = quantities are saved
