@@ -22,21 +22,17 @@ contains
 !>                     weighted over charge states.
 !>            xi     : relative weight of every charge state.
 !--------------------------------------------------------------------
-subroutine colxi(ns,nc,ncm,zsp,den,t,m)
+subroutine colxi()
 
+  use init, only : ns,nc,ncm,zsp,den,t,m  
   implicit none
 
-  integer :: ns,nc,ncm
   integer :: i,j,k,l,ierr
-  real den,t,m,dene,lnab,tcons,zsp
-  dimension zsp(ns,ncm),nc(ns),den(ns,ncm),t(ns)
-  dimension m(ns)
+  real dene,lnab,tcons
+
  
  
-  allocate(XI(ns,ncm),stat=ierr)
- ! if (ierr /= 0) call neo_abort('could not allocate array')
-  allocate(TAU(ns,ncm),stat=ierr)
- ! if (ierr /= 0) call neo_abort('could not allocate array') 
+
   
   ! calculate the collision times
   tcons = 8.74202e6

@@ -22,16 +22,19 @@
 !>    output coeffc : the tranport coefficients (see neoart
 !>                    for definition
 !-----------------------------------------------------------
-subroutine class(nsm,ncm,ns,nc,t,zsp,xi,la,lab,ds,coeffc)
-
+subroutine class(coeffc)
+ 
+ 
+  use init, only :  ns,nc, ncm, zsp, m, t, den, ds
+  use collision, only : xi
+  use friction, only : la,lab
+                       
   implicit none
 
-  integer nsm,ncm,ns,nc,i,j,k,l
-  real  xi,la,lab,ds,coeffc,v,zsp,t
+  integer :: i,j,k,l
+  real :: coeffc,v
 
-  dimension nc(nsm), xi(nsm,ncm), la(3,3,nsm)
-  dimension lab(3,3,nsm,nsm), ds(nsm,ncm,2)
-  dimension coeffc(nsm,ncm,4),zsp(nsm,ncm), t(nsm)
+  dimension coeffc(ns,ncm,4)
 
   do i = 1, ns ;  do j = 1, nc(i)
           

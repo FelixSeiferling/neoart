@@ -18,7 +18,7 @@ integer :: nreg !parameter  IN THE CALCULATION OF THE VISCOSITY.
 !                               BUTION USUALLY DECREASES. WHEN
 !                               NREG = 1 THERE IS NO SUCH DECR.
 
-integer, dimension(4) :: sigma  !THE SIGMA'S DETERMINE WHICH OF THE COUPLING 
+integer, save, allocatable :: sigma(:)  !THE SIGMA'S DETERMINE WHICH OF THE COUPLING 
 !                        TERMS IN THE EQUATION FOR THE PFIRSCH 
 !                        SCHLUETER REGIME ARE TAKEN INTO ACOUNT. 
 !                        SIGMA(1)= 0,1  IS THE CROSS COUPLING BETWEEN 
@@ -45,10 +45,10 @@ integer :: ncof ! PARAMETERS THAT DETERMINES WHETHER ION-
 !                        ELECTRON COLLISIONS ARE TAKEN INTO ACCOUNT
 !                        0 NOT TAKEN INTO ACCOUNT
 !                        1 TAKEN INTO ACCOUNT (NORMAL VALUE, 1) 
-logical :: neogeo !      LOGICAL IF TRUE THEN THE GEOMETRY DEP.
-!                        PARAMETERS ARE RECALCULATED.
-logical :: neofrc !      LOGICAL IF TRUE THEN THE FRICTION AND 
-!                       VISCOSITY MATRIX ARE !NOT! NEWLY CALCULATED
+! logical :: neogeo !      LOGICAL IF TRUE THEN THE GEOMETRY DEP.
+! !                        PARAMETERS ARE RECALCULATED.
+! logical :: neofrc !      LOGICAL IF TRUE THEN THE FRICTION AND 
+! !                       VISCOSITY MATRIX ARE !NOT! NEWLY CALCULATED
 integer :: ic     !       Control: THE CONTRIBUTION FOR WHICH THE COEFFICIENTS
 !                        ARE CALCULATED. 
 !                        0 THE CLASSICAL PARTICLE FLUX
@@ -89,17 +89,20 @@ real :: Rn          ! major radius in units of R_ref= ?
 real :: Bn          ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
 real :: eparr     ! THE PARALLEL ELECTRIC FIELD TIMES THE 
 !                        MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
+real, save, allocatable :: CFF(:,:,:) !used in main for saving results
 
 !integer :: NAR. NZM
 
 contains
 
-subroutine read_input()
+subroutine get_ns_and_ncm()
 
+use error, only : neo_abort
 implicit none
 
 namelist /control/ ns, eps, nreg, sigma1, sigma2,&
-& sigma3, sigma4, nleg, nenergy, ncof, neogeo, neofrc, ic
+& sigma3, sigma4, nleg, nenergy, ncof, ic
+!neogeo, neofrc
 namelist /geometry/ isel, ishot, rho, e, q, Rn, Bn, eparr
 namelist /species/ mas, temp, ncharge, Z, n, dp, dt 
 
@@ -114,6 +117,7 @@ real :: mas, temp
 open(30,file='input.dat',FORM='formatted',STATUS='old', &
          POSITION='rewind', ACTION='read', IOSTAT=io_stat)
  if(io_stat /= 0)call neo_abort('input.dat not found!')
+ 
 ncm=0
 read(30,NML=control,iostat=io_stat)
 do i=1, ns
@@ -125,6 +129,36 @@ do i=1, ns
 
 end do
 close(unit=30)
+
+end subroutine
+
+subroutine set_defaults()
+ 
+ implicit none
+ 
+ write(*,*) 'Not setting any defaults at the moment... ADD IT'
+
+end subroutine
+
+subroutine read_input()
+
+use error, only : neo_abort
+implicit none
+
+namelist /control/ ns, eps, nreg, sigma1, sigma2,&
+& sigma3, sigma4, nleg, nenergy, ncof, ic
+!neogeo, neofrc
+namelist /geometry/ isel, ishot, rho, e, q, Rn, Bn, eparr
+namelist /species/ mas, temp, ncharge, Z, n, dp, dt 
+
+integer :: io_stat, i,j 
+integer :: ierr
+integer :: sigma1, sigma2, sigma3, sigma4 !for input file
+real, dimension(nionmax) :: z !for input file
+real, dimension(nionmax) :: n, dp, dt
+integer:: ncharge 
+real :: mas, temp 
+
 
 open(30,file='input.dat',FORM='formatted',STATUS='old', &
          POSITION='rewind', ACTION='read', IOSTAT=io_stat)
@@ -151,22 +185,11 @@ write(31,*) 'sigma4 = ', sigma(4)
 write(31,*) 'nleg = ', nleg  
 write(31,*) 'nenergy = ', nenergy
 write(31,*) 'ncof = ', ncof
-write(31,*) 'neogeo = ', neogeo
-write(31,*) 'neofrc = ', neofrc
+! write(31,*) 'neogeo = ', neogeo
+! write(31,*) 'neofrc = ', neofrc
 write(31,*) 'ic = ', ic
 
-allocate(nc(ns),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate charge state array')
-allocate(zsp(ns,ncm),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate charge number array')
-allocate(m(ns),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate mass array')
-allocate(T(ns),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate temperature array')
-allocate(den(ns,ncm),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate density array')
-allocate(ds(ns,ncm,2),stat=ierr)
- if (ierr /= 0) call neo_abort('could not allocate mass array')
+
  
 !GEOM INPUT
 read(30,NML=geometry, iostat=io_stat)
@@ -187,7 +210,7 @@ write(31,*) 'Eparr = ', Eparr
 do i=1, ns
 
 read(30,NML=species, iostat=io_stat)
-m(i)=mas
+m(i)=mas*1.63E-27
 T(i)=temp
 nc(i)=ncharge
 write(31,*) '------------------------------------------------'
@@ -232,14 +255,7 @@ close(unit=31)
 
 end subroutine
 
- subroutine neo_abort(message)
 
-  character (len=*),intent(in) :: message
-
-  write(*,*) 'NEOART STOPPED: ', message
-  stop 1
-
- end subroutine
 
 
 end module init
