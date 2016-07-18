@@ -1,0 +1,73 @@
+! Sample input for NEOART
+!-------------------------------------------------------------
+&CONTROL         ! This namelist is CONTROL
+ns = 2           ! number of species (DEFAULT=2) count electrons. 
+                 ! there must be ns entries in Species with electrons first
+eps = 1E-5      ! required accuracy
+nreg = 0         ! parameter for viscosity calculation.
+                 ! 0=DEFAULT: The banana and pfirsch schlueter contributions are weighted
+                 ! 1        : The banana regime is forced
+                 ! 2        : the pfirsch schlueter regime is forced
+                 ! NOTE: FORCING THE BANANA REGIME IS NOT THE SAME THING AS CALCULATING THE
+                 !       BANANA PLATEAU CONTRIBUTION. FOR HIGH COLLISION FREQ. THIS CONTRI-
+                 !       BUTION USUALLY DECREASES. WHEN NREG = 1 THERE IS NO SUCH DECREASE
+!                ! 
+                 ! THE SIGMA'S (0=off,1=on=DEFAULT) DETERMINE WHICH OF THE COUPLING TERMS 
+                 ! IN THE EQUATION FOR THE PFIRSCH SCHLUETER REGIME ARE TAKEN INTO ACOUNT. 
+sigma1 = 0       ! IS THE CROSS COUPLING BETWEEN THE HEAT EQUATION AND THE EQUATION
+                 ! FOR THE THIRD LAGUERRE HARMONIC.
+sigma2 = 0       ! IS THE CROSS COUPLING BETWEEN  THE EQUATION FOR THE THIRD HARMONIC
+                 ! AND THE TEMPERATURE PERTURBATION.
+sigma3 = 0       ! IS THE ENERGY EXCHANGE BETWEEN THE DIFFERENT SPECIES.
+sigma4 = 1       ! IS THE COUPLING TO THE "DENSITY PERTURBATION"
+                 ! IN THE EQUATION FOR THE THRIRD LAGUERRE HARMONIC.
+                 ! IN THE APPROXIMATIONS OF HIRSHMANN AND SIGMAR
+                 ! SIGMA(1)=0 SIGMA(2)=0 SIGMA(3)=1 SIGMA(4)=1
+nleg = 3         ! order of legendre polynomials in expasnsion up to 3(=DEFAULT).
+nenergy = 1      ! energy scattering in viscosity calculation 0=off; DEFAULT=1=on.
+ncof = 0          ! ion-electron collisions off=0 or on=1=DEFAULT
+ic = 2           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED. 
+                 ! 0 THE CLASSICAL PARTICLE FLUX
+                 ! 1 BANANA PLATEAU CONTRIBUTION
+                 ! 2 PFIRSCH SCHLUETER CONTRIBUTION
+                 ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
+/
+!-------------------------------------------------------------
+&GEOMETRY        ! This namelist is GEOMETRY
+isel = 2         !geometry switch: 
+                 ! 1 ASSUME HAMADA COORDINATES AND USE THE ROUTINE VISGEOM
+                 ! 2 ASSUME CIRCULAR GEOMETRY AND USE CIRCGEOM TO DETERMINE THE PARAMETERS
+                 ! 3 READ FROM FILE
+                 ! 4 READ FROM CHEASE OUTPUT, IN THAT CASE THE FLUX SURFACE LABEL IS 
+                 ! RHO=(RMAX-RMIN)/2/R0EXP as in GKW
+ishot = 0        ! !shot number, only used when isel=3
+rho = 0.05       ! !flux surface label
+e = 1E-4         ! inverse aspect ration epsilon
+q = 0.707           ! safety factor
+Rn = 1.65          ! major radius in units of R_ref= ?
+Bn = 2.5         ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
+Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
+/
+!-------------------------------------------------------------
+&SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
+!ELECTRONS!
+mas = 5.446E-4  ! mass of species in units of proton mass
+temp = 0.001       ! temperature of species in units of keV.
+ncharge = 1     ! number of charge states
+Z = -1          ! charge number of charge states
+n = 7.0          ! density of charge states in units of 1E19 m^-3
+dp = 0.0        ! pressure gradient
+dt = 0.0        ! temperature gradient
+/
+!-------------------------------------------------------------
+&SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
+mas = 1.        ! mass of species in units of proton mass
+temp = 0.001       ! temperature of species in units of keV.
+ncharge = 1     ! number of charge states
+Z = 1           ! charge number of charge states
+n = 7.         ! density of charge states in units of 1E19 m^-3
+dp = .0         ! pressure gradient
+dt = 1.         ! temperature gradient
+/
+!-------------------------------------------------------------                 
+                             
