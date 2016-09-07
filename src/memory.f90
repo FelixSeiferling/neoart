@@ -3,7 +3,7 @@ module memory
 contains
  subroutine alloc_all()
  
- use init, only : ns,ncm,cff
+ use init, only : ns,ncm,cff, vnlin_drive
  use init, only : nc,zsp,m,t,den,ds,sigma
  use collision, only : xi,tau
  use friction, only : la,lab
@@ -55,6 +55,11 @@ contains
   allocate(cff(ns,ncm,4),stat=ierr)
     if (ierr /= 0) call neo_abort('could not allocate array')
     cff=0.
+    
+   allocate(vnlin_drive(ns,ncm,3),stat=ierr)
+    if (ierr /= 0) call neo_abort('could not allocate array')
+    vnlin_drive=0.
+    
     
  end subroutine
 

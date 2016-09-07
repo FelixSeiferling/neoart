@@ -25,13 +25,13 @@ sigma4 = 1       ! IS THE COUPLING TO THE "DENSITY PERTURBATION"
                  ! SIGMA(1)=0 SIGMA(2)=0 SIGMA(3)=1 SIGMA(4)=1
 nleg = 3         ! order of legendre polynomials in expasnsion up to 3(=DEFAULT).
 nenergy = 1      ! energy scattering in viscosity calculation 0=off; DEFAULT=1=on.
-ncof = 0          ! ion-electron collisions off=0 or on=1=DEFAULT
+ncof = 1          ! ion-electron collisions off=0 or on=1=DEFAULT
 ic = 1           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED. 
                  ! 0 THE CLASSICAL PARTICLE FLUX
                  ! 1 BANANA PLATEAU CONTRIBUTION
                  ! 2 PFIRSCH SCHLUETER CONTRIBUTION
                  ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
-l_vnlin = .false. ! logical switch, if true requires "vnlin_moments_AV.dat" 
+l_vnlin = .true. ! logical switch, if true requires "vnlin_moments_AV.dat" 
                  ! reads turbulent drive terms, see namelist below
 /
 !-------------------------------------------------------------
@@ -44,38 +44,40 @@ isel = 2         !geometry switch:
                  ! RHO=(RMAX-RMIN)/2/R0EXP as in GKW
 ishot = 0        ! !shot number, only used when isel=3
 rho = 0.05       ! !flux surface label
-e = 1E-4         ! inverse aspect ration epsilon
-q = 2.           ! safety factor
+e = 0.19         ! inverse aspect ration epsilon
+q = 1.4           ! safety factor
 Rn = 1.65          ! major radius in units of R_ref= ?
 Bn = 2.5         ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
+!Eparr = 0.1      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE.
 Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 !ELECTRONS!
 mas = 5.446E-4  ! mass of species in units of proton mass
-temp = 10.      ! temperature of species in units of keV.
+temp = 1.5      ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = -1          ! charge number of charge states
 n = 5.0         ! density of charge states in units of 1E19 m^-3
-dp = .0         ! electron pressure gradient
-dt = .0         ! electron temperature gradient
+dp = 7.7         ! electron pressure gradient
+dt = 5.5         ! electron temperature gradient
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
-mas = 1.        ! mass of species in units of proton mass
-temp = 10.      ! temperature of species in units of keV.
+mas = 2.        ! mass of species in units of proton mass
+temp = 1.5      ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = 1           ! charge number of charge states
 n = 5.          ! density of charge states in units of 1E19 m^-3
-dp = .0         ! pressure gradient
-dt = .0         ! temperature gradient
+dp = 9.1         ! pressure gradient
+dt = 6.9         ! temperature gradient
 /
 !-------------------------------------------------------------
 &VNLIN          ! 
-vnlin_order = 3 ! 0= off, up to given order considered (max==default=3)
+vnlin_order = 0 ! 0= off, up to given order considered (max==default=3)
 vnlin_contribution = 0 !  0(default) for all, 1: ExB only; 2: Curv only; 3: Coriolis only 
 
 /
 !-------------------------------------------------------------                
+                              
                              

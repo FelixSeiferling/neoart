@@ -1,7 +1,7 @@
 include Makefile-neoart.include
 
-neoart: $(NEOART_OBJECTS) RUNME.o
-	$(FC) $(FFLAGS) -o ../neoart $^
+neoart: $(NEOART_OBJECTS) MAIN.o
+	$(FC) $(FFLAGS) -o ../neoart.x $^
 
 %.o: %.f
 	$(FC) $(FFLAGS) -c -o $@ $<
@@ -10,5 +10,5 @@ neoart: $(NEOART_OBJECTS) RUNME.o
 	$(FC) $(FFLAGS) -c -o $@ $<
 
 clean:
-	rm -f *.o ../neoart
+	rm -f *.o ../neoart.x *.mod
 

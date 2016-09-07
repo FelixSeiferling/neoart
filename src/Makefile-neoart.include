@@ -4,15 +4,16 @@ FFLAGS += -fPIC # needed to compile matlab interface
 
 NEOART_SOURCES=\
 	advance.f\
-	bp.f90\
-	circgeom.f90\
-	class.f90\
-	colxi.f90\
 	dandv.f90\
 	erf.f\
-	geom.f90\
 	get_geom.f\
 	get_geom_ch.f\
+	error.f90\
+	init.f90\
+	geometry.f90\
+	collision.f90\
+	friction.f90\
+	bp.f90\
 	interp.f\
 	lubksb.f\
 	ludcmp.f\
@@ -20,11 +21,12 @@ NEOART_SOURCES=\
 	neoart.f\
 	penq.f90\
 	perr.f\
-	ps.f\
-	viscol.f\
-	viscos.f\
+	ps.f90\
+	viscol.f90\
+	viscos.f90\
 	visfus.f\
-	visgeom.f\
+	class.f90\
+	memory.f90\
 
 SOURCES_F90 = $(filter %.f90, $(NEOART_SOURCES))
 SOURCES_F = $(filter %.f, $(NEOART_SOURCES))

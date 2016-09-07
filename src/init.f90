@@ -60,9 +60,10 @@ integer :: ncm           ! maximum number of charge states
 integer, save ,allocatable :: nc(:) ! DIM:(ns) number of charge states
 real, save ,allocatable :: zsp(:,:) !DIM:(ns,nc) charge number
 real, save, allocatable :: m(:) !DIM:(ns) mass in units of proton mass 
-real, save, allocatable :: T(:) !DIM:(ns) temperautre in units of kEV (OR THERMAL VEL???)
-real, save, allocatable :: den(:,:) !DIM:(ns,nc) density in units of 10^19 m^-3 (OR THERMAL VEL???)
+real, save, allocatable :: T(:) !DIM:(ns) temperautre in units of kEV
+real, save, allocatable :: den(:,:) !DIM:(ns,nc) density in units of 10^19 m^-3
 real, save, allocatable :: ds(:,:,:) !DIM:(ns,nc,2); 1 Pressure gradient; 2 Temperature gradient
+!                                    !  divide by R^2 to get gkw gradients
 !
 !                                          D LN P_IJ 
 !                              DS(I,J,1) = ---------   
@@ -91,6 +92,11 @@ real :: eparr     ! THE PARALLEL ELECTRIC FIELD TIMES THE
 !                        MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
 real, save, allocatable :: CFF(:,:,:) !used in main for saving results
 
+
+integer :: vnlin_order ! which orders are considered 3(default). 0= source ignored 
+integer :: vnlin_contribution ! 0(default) for all, 1: ExB only; 2: Curv only; 3: Coriolis only 
+real, save, allocatable :: vnlin_drive(:,:,:)
+logical :: l_vnlin
 !integer :: NAR. NZM
 
 contains
@@ -146,11 +152,12 @@ use error, only : neo_abort
 implicit none
 
 namelist /control/ ns, eps, nreg, sigma1, sigma2,&
-& sigma3, sigma4, nleg, nenergy, ncof, ic
+& sigma3, sigma4, nleg, nenergy, ncof, ic, l_vnlin
+
 !neogeo, neofrc
 namelist /geometry/ isel, ishot, rho, e, q, Rn, Bn, eparr
 namelist /species/ mas, temp, ncharge, Z, n, dp, dt 
-
+namelist /vnlin/ vnlin_order, vnlin_contribution
 integer :: io_stat, i,j 
 integer :: ierr
 integer :: sigma1, sigma2, sigma3, sigma4 !for input file
@@ -188,6 +195,7 @@ write(31,*) 'ncof = ', ncof
 ! write(31,*) 'neogeo = ', neogeo
 ! write(31,*) 'neofrc = ', neofrc
 write(31,*) 'ic = ', ic
+write(31,*) 'l_vnlin = ', l_vnlin
 
 
  
@@ -210,7 +218,7 @@ write(31,*) 'Eparr = ', Eparr
 do i=1, ns
 
 read(30,NML=species, iostat=io_stat)
-m(i)=mas*1.63E-27
+m(i)=mas*1.6727E-27
 T(i)=temp
 nc(i)=ncharge
 write(31,*) '------------------------------------------------'
@@ -242,12 +250,20 @@ write(31,*) ' '
 
 write(31, '(A)', advance='NO') ' dt = '
 do j=1, ncharge
-ds(i,j,1)=dt(j)
+ds(i,j,2)=dt(j)
 write(31, '(F5.2)', advance='NO') ds(i,j,2)
 end do
 write(31,*) ' '
 
 end do
+
+!vnlin_control
+read(30,NML=vnlin, iostat=io_stat)
+write(31,*) '------------------------------------------------'
+write(31,*) '&vnlin'
+write(31,*) 'vnlin_order= ', vnlin_order
+write(31,*) 'vnlin_contribution= ', vnlin_contribution
+
 close(unit=30)
 close(unit=31)
 
@@ -255,7 +271,78 @@ close(unit=31)
 
 end subroutine
 
+subroutine vnlin()
+
+real :: vnlin_in(3,3)
+real :: dum, dum1
+integer :: k,l, io_stat
+real :: rs, norm, vth
 
 
+open(31, file='vnlin_moments_AV.dat', iostat=io_stat)
+ if(io_stat /= 0) then
+   write(*,*) ' supply vnlin_moments_AV.dat   &
+                &  or set vnlin_Source=.false. '
+   stop 1
+ end if 
+ 
+ do k=1,3
+   do l=1,3
+     read(31,*) vnlin_in(k,l), dum, dum1
+   end  do
+ end do
+ 
+
+ vnlin_drive=.0
+ 
+ if(l_vnlin) then
+ ds=ds/(rn*rn)     !! dirty solution to get same gradients as in gkw
+
+ do k=1,3
+   if(vnlin_order.ge.k) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(1,k)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(2,k)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(3,k)
+     end if
+ end do
+ 
+ if(vnlin_order .eq. -1) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(1,1)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(2,1)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(3,1)
+   end if
+ if(vnlin_order .eq. -2) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(1,2)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(2,2)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(3,2)
+   end if
+ if(vnlin_order .eq. -3) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(1,3)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(2,3)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(3,3)
+   end if
+!rhostar
+rs=sqrt(2*m(2)*T(2)*1.6022E-16)/(zsp(2,1)*1.6022E-19*Bn*Rn)
+norm= rs*rs*Bn*den(2,1)*1E19*T(2)*1.6022E-16/Rn   ! 
+!write(*,*) rs, norm
+do k=1,3
+vnlin_drive(2,1,k)=vnlin_drive(2,1,k)* norm
+end do
+!write(*,*) vnlin_drive
+end if
+
+end subroutine
 
 end module init

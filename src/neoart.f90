@@ -137,8 +137,7 @@ subroutine neoart(coeff)
       IMPLICIT NONE     
  
       integer :: i,j,k,l,ikeep, ierr
-      integer :: ISK 
-      real :: EPARN,RHOK, DUM
+      real :: EPARN, DUM
       real, dimension(ns,ncm,4) :: coeff, coeffc
       real, dimension(ns,ncm,3) :: uai
 
@@ -148,13 +147,13 @@ subroutine neoart(coeff)
 !     CULATED THEN GO THROUGH THE FOLLOWING LOOP. 
       
 
+      
       coeff=0.
       coeffc=0.
     !  uai=0.
 !     NORMALIZE THE EPARR
-      EPARN = 1E-3*DPSIDR*R2I*EPARR 
-      
-      
+      EPARN = 1.E-3*DPSIDR*R2I*EPARR 
+!      write(*,*) eparn
 !     CALCULATE THE CLASSICAL TRANSPORT CONTRIBUTION
       if ((IC.EQ.0).OR.(IC.EQ.3)) THEN
       if(isel==1) call neo_warn('classical contribution set to 0 for isel=1. &
@@ -171,9 +170,11 @@ subroutine neoart(coeff)
             end do
           end do
         end do
-      end if
+      end if     
+   
 
 !     CALCULATE THE PFIRSCH SCHLUETER CONTRIBUTION
+      coeffc=0.
       if ((IC.EQ.2).OR.(IC.EQ.3)) THEN
         call PS(uai,coeffc)
 !       ADD THE CORRECT NORMALIZATION FACTOR, PUT RESULT IN 
@@ -191,7 +192,7 @@ subroutine neoart(coeff)
       end if
 
 
-
+      coeffc=0.
       if ((IC.EQ.1).OR.(IC.EQ.3)) then
        call bp(eparn,coeffc)
 !       ADD THE CORRECT NORMALIZING FACTOR. PUT RESULT IN 

@@ -296,6 +296,8 @@ subroutine geom()
 !      
 !   ! in this part the coefficients are read from a CHEASE output file
    case(4)
+   
+      call neo_abort(' (isel=4) is currently not supported')
 
     call get_geom_ch(new_read, rho, nmaxgr, bav, b2av, bi2a, rbt, bgradp, &
             &        dpsidr, rnq, fc, gclass, fm, mmx, r2i)

@@ -1,8 +1,8 @@
 GFORTRAN module version '10' created from collision.f90
-MD5:6488540a388bc5f03661047408a1e207 -- If you edit this, you'll get what you deserve.
+MD5:4303fc26d8215e628ab5c35f386e07d9 -- If you edit this, you'll get what you deserve.
 
-(() () () () () () () () () () () () () () () () () () () () () () () ()
-() () ())
+(() () () () () () () () () () () () () () () () () () () () () () ()
+() () () ())
 
 ()
 
@@ -18,40 +18,14 @@ MD5:6488540a388bc5f03661047408a1e207 -- If you edit this, you'll get what you de
 UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0
 0)
 3 'colxi' 'collision' '' 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL
-UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0 0 UNKNOWN ()) 4 0 (5 6 7 8 9 10
-11) () 0 () () () 0 0)
-12 'tau' 'collision' '' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () ()
+0 0)
+4 'tau' 'collision' '' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 EXPLICIT-SAVE 0 0 ALLOCATABLE DIMENSION) (REAL 8 0 0 0 REAL ()) 0 0 () (
 2 0 DEFERRED () () () ()) 0 () () () 0 0)
-13 'xi' 'collision' '' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
+5 'xi' 'collision' '' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 EXPLICIT-SAVE 0 0 ALLOCATABLE DIMENSION) (REAL 8 0 0 0 REAL ()) 0 0 () (
 2 0 DEFERRED () () () ()) 0 () () () 0 0)
-5 'ns' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DUMMY) (INTEGER 4 0 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
-6 'nc' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DIMENSION DUMMY) (INTEGER 4 0 0 0 INTEGER ()) 0 0 () (1 0 EXPLICIT (
-CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (VARIABLE (INTEGER 4 0 0 0
-INTEGER ()) 0 5 ())) 0 () () () 0 0)
-7 'ncm' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DUMMY) (INTEGER 4 0 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
-8 'zsp' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 EXPLICIT (
-CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (VARIABLE (INTEGER 4 0 0 0
-INTEGER ()) 0 5 ()) (CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (
-VARIABLE (INTEGER 4 0 0 0 INTEGER ()) 0 7 ())) 0 () () () 0 0)
-9 'den' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 EXPLICIT (
-CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (VARIABLE (INTEGER 4 0 0 0
-INTEGER ()) 0 5 ()) (CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (
-VARIABLE (INTEGER 4 0 0 0 INTEGER ()) 0 7 ())) 0 () () () 0 0)
-10 't' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (1 0 EXPLICIT (
-CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (VARIABLE (INTEGER 4 0 0 0
-INTEGER ()) 0 5 ())) 0 () () () 0 0)
-11 'm' '' '' 4 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
-0 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (1 0 EXPLICIT (
-CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') (VARIABLE (INTEGER 4 0 0 0
-INTEGER ()) 0 5 ())) 0 () () () 0 0)
 )
 
-('collision' 0 2 'colxi' 0 3 'tau' 0 12 'xi' 0 13)
+('collision' 0 2 'colxi' 0 3 'tau' 0 4 'xi' 0 5)

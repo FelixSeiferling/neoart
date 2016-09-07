@@ -3,13 +3,13 @@ module error
 contains
  subroutine neo_abort(message)
   
-  use memory, only : dealloc_all
+  !use memory, only : dealloc_all
   implicit none
 
   character (len=*),intent(in) :: message
 
   write(*,*) 'NEOART STOPPED: ', message
-  call dealloc_all()
+  !call dealloc_all()
   stop 1
 
  end subroutine

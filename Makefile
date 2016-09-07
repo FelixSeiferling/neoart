@@ -1,6 +1,7 @@
-SUBDIRS=src tests matlab python
+SUBDIRS=src #tests
 
-all: src tests
+all: src 
+#tests
 
 $(SUBDIRS):
 	$(MAKE) -C $@

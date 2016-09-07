@@ -1,4 +1,15 @@
-
+!-----------------------------------------------------------------------
+!  decompose the matrix a(n,n) into an lower and upper triangular matrix.
+!  return this matrices in a
+!  input parameters:
+!    np       - physical dimension of matrix
+!    n        - actual dimension of matrix
+!    a(np,np) - matrix to decompose, decomposition is returned in a
+!  output parameters:
+!    indx(*)  - vector recording the numbers of row changes
+!    d        = +/- 1 depending of even/odd number of row changes
+!  (c) Numerical recipes
+!-----------------------------------------------------------------------
       SUBROUTINE ludcmp(a,n,np,indx,d)
       
       IMPLICIT NONE
@@ -8,13 +19,14 @@
       PARAMETER (NMAX=500,TINY=1.0e-20)
       INTEGER i,imax,j,k
       REAL aamax,dum,sum,vv(NMAX)
+      
       d=1.
       do 12 i=1,n
         aamax=0.
         do 11 j=1,n
           if (abs(a(i,j)).gt.aamax) aamax=abs(a(i,j))
 11      continue
-        if (aamax.eq.0.) pause 'singular matrix in ludcmp'
+        if (aamax.eq.0.) stop 'singular matrix in ludcmp'
         vv(i)=1./aamax
 12    continue
       do 19 j=1,n

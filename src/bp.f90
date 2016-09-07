@@ -50,10 +50,10 @@
 !-------------------------------------------------------------------
 subroutine bp(eparn,coeff)
 
-     use init, only :ns,nc,ncm,t,m,den,zsp,ds
+     use init, only :ns,nc,ncm,t,m,den,zsp,ds, vnlin_order
      use friction, only :la, lab
-     use init, only : eps, nenergy, nleg,nreg
-     use geometry, only : bgradp, fc, fm, mmx
+     use init, only : eps, nenergy, nleg,nreg, vnlin_drive
+     use geometry, only : bgradp, fc, fm, mmx,dpsidr,rbt
   use collision, only : tau, xi
   implicit none    
 
@@ -63,26 +63,31 @@ subroutine bp(eparn,coeff)
 
   real :: eparn, coeff
   
-  integer :: mt
+  integer :: mt, indx
   real :: d, akp
   real ::  bt, upar, mu
-  real :: visc, aaa, ainv, indx
+  real :: visc, aaa, ainv
   real :: dsNew
   logical :: nltest
 
 
   dimension :: akp(3,3), d(3*ns), coeff(ns,ncm,4)
   dimension :: bt(3*ns), mu(3,3), upar(ns,ncm,3)
-  dimension :: visc(3,3,ns,ncm), aaa(3,3,ns,ns)
+  dimension :: visc(3,3,ns,ncm), aaa(3,3,ns,ncm)
   dimension :: ainv(3*ns,3*ns), indx(3*ns)
   dimension :: dsNew(ns,ncm,2)
 
 
  ! define the proper thermodynamic forces for the calculation below
- do i = 1, ns ; do j = 1, nc(i) ; do k = 1, 2
+  do i = 1, ns ; do j = 1, nc(i) ; do k = 1, 2
     dsNew(i,j,k) = t(i)*ds(i,j,k)/zsp(i,j)
  end do ; end do ; end do 
-
+ 
+ 
+ !renormalize vnlin terms to match other terms
+  do i = 1, ns ; do j = 1, nc(i) ; do k = 1, 3
+    vnlin_drive(i,j,k) = vnlin_drive(i,j,k)*1.E-3*dpsidr/rbt
+ end do ; end do ; end do 
 ! calculate the viscosity
     do i = 1, ns ;  do j = 1, nc(i)
 
@@ -110,11 +115,12 @@ subroutine bp(eparn,coeff)
       end do 
 
       do k = 1, nleg ; do l = 1, nleg
-        aaa(k,l,i,j) = visc(k,l,i,j) - xi(i,j)*la(k,l,i)
+        aaa(k,l,i,j) = visc(k,l,i,j) - xi(i,j)*la(k,l,i)   ! = -A_kl^alphabeta from Houlberg
       end do ; end do 
 
       ! do the lu decomposition
        call ludcmp(aaa(1,1,i,j),3,3,indx,d)
+
 
       do k = 1, 3 ; do l = 1, 3
         akp(k,l) = 0.
@@ -128,7 +134,7 @@ subroutine bp(eparn,coeff)
       end do 
 
       do k = 1, 3 ; do l = 1, 3
-        aaa(k,l,i,j) = akp(k,l)
+        aaa(k,l,i,j) = akp(k,l)   ! now we got the inverse of -A  (used to calculate the responses to the sources)
       end do ; end do 
 
     end do ; end do 
@@ -159,18 +165,27 @@ subroutine bp(eparn,coeff)
     end do 
 
     ! calculate the lu decomposition
-    call ludcmp(ainv,3*ns,3*ns,indx,d)  
+    call ludcmp(ainv,3*ns,3*ns,indx,d)
 
-
+  
   ! now calculate the right hand side    
   do i = 1, ns ; do k = 1, 3 
     bt((i-1)*3+k) = 0.
     if (k.le.nleg) then 
+       do j=1, nc(i); do l=1,3
+!         vnlin_drive(i,j,l)=.0    !was for testing purposes
+!         if(l==1 .and. vnlin_order.ge.1) then
+!          vnlin_drive(i,j,l)= 1.6*xi(i,j)*zsp(i,j)*den(i,j)*4.2263893468883363E-004
+!          !write(*,*) vnlin_drive(i,j,l)
+!         end if
+        bt((i-1)*3+k) = bt((i-1)*3+k) + aaa(k,l,i,j)*vnlin_drive(i,j,l)   !! vnlin turb drive response
+      end do; end do
+
       do j = 1, nc(i)
-        bt((i-1)*3+k) = bt((i-1)*3+k)+1.6*xi(i,j)*zsp(i,j)* &
+        bt((i-1)*3+k) = bt((i-1)*3+k)+1.6*xi(i,j)*zsp(i,j)* &   !! charge species averaged E-field response
                       & den(i,j)*aaa(k,1,i,j)*eparn
       end do 
-      do l = 1, 3 ; do mt = 1, 2 ; do j = 1, nc(i)
+      do l = 1, 3 ; do mt = 1, 2 ; do j = 1, nc(i)   !! thermodynamic gradient response 
          bt((i-1)*3+k) = bt((i-1)*3+k) - xi(i,j)*       &
             &   aaa(k,l,i,j)*visc(l,mt,i,j)*dsNew(i,j,mt)
        end do ; end do ; end do 
@@ -179,7 +194,6 @@ subroutine bp(eparn,coeff)
 
 
   call lubksb(ainv,3*ns,3*ns,indx,bt)
-
   ! now calculate the indivudual particle velocities
   do i = 1, ns 
 
@@ -204,6 +218,9 @@ subroutine bp(eparn,coeff)
         end do 
         upar(i,j,k) = upar(i,j,k) + aaa(k,1,i,j)*  & 
                     & 1.6E0*zsp(i,j)*den(i,j)*eparn
+        do l = 1, 3
+          upar(i,j,k) = upar(i,j,k) + aaa(k,l,i,j)* vnlin_drive(i,j,l) 
+        end do
       end if 
     end do ; end do 
 

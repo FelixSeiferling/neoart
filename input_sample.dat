@@ -3,7 +3,7 @@
 &CONTROL         ! This namelist is CONTROL
 ns = 2           ! number of species (DEFAULT=2) count electrons. 
                  ! there must be ns entries in Species with electrons first
-eps = 1E-5      ! required accuracy
+eps = 1E-5       ! required accuracy
 nreg = 0         ! parameter for viscosity calculation.
                  ! 0=DEFAULT: The banana and pfirsch schlueter contributions are weighted
                  ! 1        : The banana regime is forced
@@ -25,14 +25,14 @@ sigma4 = 1       ! IS THE COUPLING TO THE "DENSITY PERTURBATION"
                  ! SIGMA(1)=0 SIGMA(2)=0 SIGMA(3)=1 SIGMA(4)=1
 nleg = 3         ! order of legendre polynomials in expasnsion up to 3(=DEFAULT).
 nenergy = 1      ! energy scattering in viscosity calculation 0=off; DEFAULT=1=on.
-ncof= 0          ! ion-electron collisions off=0 or on=1=DEFAULT
-neogeo = .true.  ! Geometry parameters are recalculated
-neofrc = .false. ! Fritction and viscosity matrix are !NOT! newly calculated
-ic = 1           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED. 
+ncof = 1          ! ion-electron collisions off=0 or on=1=DEFAULT
+ic = 3           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED. 
                  ! 0 THE CLASSICAL PARTICLE FLUX
                  ! 1 BANANA PLATEAU CONTRIBUTION
                  ! 2 PFIRSCH SCHLUETER CONTRIBUTION
                  ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
+l_vnlin = .true. ! logical switch, if true requires "vnlin_moments_AV.dat" 
+                 ! reads turbulent drive terms, see namelist below
 /
 !-------------------------------------------------------------
 &GEOMETRY        ! This namelist is GEOMETRY
@@ -45,9 +45,9 @@ isel = 2         !geometry switch:
 ishot = 0        ! !shot number, only used when isel=3
 rho = 0.05       ! !flux surface label
 e = 0.04         ! inverse aspect ration epsilon
-q = 2.           ! safety factor
-Rn = 1.          ! major radius in units of R_ref= ?
-Bn = 2.          ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
+q = 1.4           ! safety factor
+Rn = 1.          ! major radius in units of m ??
+Bn = 1.          ! magnetic field strength in midplane, i.e. poloidal angle= pi/2, in units of Tesla
 Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
 /
 !-------------------------------------------------------------
@@ -57,19 +57,25 @@ mas = 5.446E-4  ! mass of species in units of proton mass
 temp = 1.       ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = -1          ! charge number of charge states
-n = 0.5          ! density of charge states in units of 1E19 m^-3
-dp = 0.0        ! pressure gradient
-dt = 0.0        ! temperature gradient
+n = 1.0          ! density of charge states in units of 1E19 m^-3
+dp = 1.0        ! pressure gradient
+dt = 1.0        ! temperature gradient
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 mas = 1.        ! mass of species in units of proton mass
 temp = 1.       ! temperature of species in units of keV.
-ncharge = 1     ! number of charge states
-Z = 1           ! charge number of charge states
-n = 0.5         ! density of charge states in units of 1E19 m^-3
-dp = .0         ! pressure gradient
-dt = 1.         ! temperature gradient
+ncharge = 3     ! number of charge states
+Z = 1,2,3       ! charge number of charge states
+n = .3,.2,.1    ! density of charge states in units of 1E19 m^-3
+dp = 1.,1.,1.   ! pressure gradient
+dt = 1.,1.,1.   ! temperature gradient
 /
-!-------------------------------------------------------------                 
+!-------------------------------------------------------------
+&VNLIN          ! 
+vnlin_order = 3 ! 0= off, up to given order considered (max==default=3); (if order= -k) take k'th order only 
+vnlin_contribution = 0 !  0(default) for all, 1: ExB only; 2: Curv only; 3: Coriolis only 
+
+/
+!-------------------------------------------------------------                         
                              

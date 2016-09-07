@@ -31,6 +31,8 @@ ic = 2           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED.
                  ! 1 BANANA PLATEAU CONTRIBUTION
                  ! 2 PFIRSCH SCHLUETER CONTRIBUTION
                  ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
+l_vnlin = .false. ! logical switch, if true requires "vnlin_moments_AV.dat" 
+                 ! reads turbulent drive terms, see namelist below                 
 /
 !-------------------------------------------------------------
 &GEOMETRY        ! This namelist is GEOMETRY
@@ -69,5 +71,11 @@ n = 7.         ! density of charge states in units of 1E19 m^-3
 dp = .0         ! pressure gradient
 dt = 1.         ! temperature gradient
 /
-!-------------------------------------------------------------                 
+!-------------------------------------------------------------               
+&VNLIN          ! 
+vnlin_order = 3 ! 0= off, up to given order considered (max==default=3)
+vnlin_contribution = 0 !  0(default) for all, 1: ExB only; 2: Curv only; 3: Coriolis only 
+
+/
+!-------------------------------------------------------------                         
                              

@@ -1,4 +1,9 @@
-
+!-----------------------------------------------------------------------
+!  solve the system a(n,n)*x(n) = b(n), using the decomposition of
+!  a(n,n) with subroutine ludcmp. The solution vector x(n) is returned
+!  in b(n), 
+!  (c) Numerical recipes.
+!-----------------------------------------------------------------------
       SUBROUTINE lubksb(a,n,np,indx,b)
 
       IMPLICIT NONE

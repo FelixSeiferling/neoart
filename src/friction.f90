@@ -59,8 +59,8 @@ subroutine fric_coeff()
       end if
 
 !    CALCULATED THE FRICTION COEFFICIENTS
+      la=0.
       do i = 1, ns
-        la=0.
         do j = 1, ns
           TA = T(I)
           TB = T(J)
@@ -75,7 +75,6 @@ subroutine fric_coeff()
            end do
         end do
        end do
-
 
 end subroutine
 

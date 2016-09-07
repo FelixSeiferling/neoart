@@ -49,7 +49,7 @@ subroutine colxi()
       dene = dene + den(i,j)*zsp(i,j)
     end do ; end do 
   endif
-   
+
   do i = 1, ns ; do j = 1, ns
 
     ! calculate the coulomb logarithm 
@@ -74,14 +74,13 @@ subroutine colxi()
       endif
 
     endif
-
+    
     tau(i,j) = 0.
     do k = 1, nc(i) ; do l = 1, nc(j)
       tau(i,j) = tau(i,j) + den(i,k)*den(j,l)*zsp(i,k)**2*zsp(j,l)**2
     end do ; end do 
 
     tau(i,j) = tau(i,j)*tcons*lnab*sqrt(m(i)/t(i)**3)
-
   end do ; end do 
    
   ! calculate the xi coefficients
