@@ -97,7 +97,7 @@ integer :: vnlin_order ! which orders are considered 3(default). 0= source ignor
 integer :: vnlin_contribution ! 0(default) for all, 1: ExB only; 2: Curv only; 3: Coriolis only 
 real, save, allocatable :: vnlin_drive(:,:,:)
 logical :: l_vnlin
-!integer :: NAR. NZM
+logical :: l_test
 
 contains
 
@@ -123,7 +123,7 @@ real :: mas, temp
 open(30,file='input.dat',FORM='formatted',STATUS='old', &
          POSITION='rewind', ACTION='read', IOSTAT=io_stat)
  if(io_stat /= 0)call neo_abort('input.dat not found!')
- 
+ns=0 
 ncm=0
 read(30,NML=control,iostat=io_stat)
 do i=1, ns
@@ -136,15 +136,46 @@ do i=1, ns
 end do
 close(unit=30)
 
+if(ns ==0)call neo_abort('Set number of species and fill Species namelist')
+if(ncm ==0)call neo_abort('At least one charge state per species')
+
+
 end subroutine
 
 subroutine set_defaults()
  
  implicit none
+ !default
+ l_test=.false.
  
- write(*,*) 'Not setting any defaults at the moment... ADD IT'
+ eps=1E-5
+ nreg=1
+ sigma=1
+ nleg=3
+ nenergy=1
+ ncof=1
+ ic=1
+ l_vnlin = .false.
+ 
+ isel=2
+ rho=0.05
+ e=0.19
+ q=1.4
+ Rn=6.
+ Bn=5.3
+ Eparr = 0.
+
+ m=0.
+ T=0.
+ zsp=0.
+ den=0.
+ ds=0.
+ 
+ vnlin_order = 0
+ vnlin_contribution = 0
 
 end subroutine
+
 
 subroutine read_input()
 
@@ -152,7 +183,7 @@ use error, only : neo_abort
 implicit none
 
 namelist /control/ ns, eps, nreg, sigma1, sigma2,&
-& sigma3, sigma4, nleg, nenergy, ncof, ic, l_vnlin
+& sigma3, sigma4, nleg, nenergy, ncof, ic, l_vnlin, l_test
 
 !neogeo, neofrc
 namelist /geometry/ isel, ishot, rho, e, q, Rn, Bn, eparr
@@ -196,7 +227,7 @@ write(31,*) 'ncof = ', ncof
 ! write(31,*) 'neofrc = ', neofrc
 write(31,*) 'ic = ', ic
 write(31,*) 'l_vnlin = ', l_vnlin
-
+write(31,*) 'l_vnlin = ', l_test
 
  
 !GEOM INPUT
@@ -218,7 +249,7 @@ write(31,*) 'Eparr = ', Eparr
 do i=1, ns
 
 read(30,NML=species, iostat=io_stat)
-m(i)=mas*1.6727E-27
+m(i)=mas*1.6726219E-27
 T(i)=temp
 nc(i)=ncharge
 write(31,*) '------------------------------------------------'
@@ -296,7 +327,7 @@ open(31, file='vnlin_moments_AV.dat', iostat=io_stat)
  vnlin_drive=.0
  
  if(l_vnlin) then
- ds=ds/(rn*rn)     !! dirty solution to get same gradients as in gkw
+ ds=ds/(rn)     !! dirty solution to get same gradients as in gkw
 
  do k=1,3
    if(vnlin_order.ge.k) then
@@ -342,6 +373,36 @@ vnlin_drive(2,1,k)=vnlin_drive(2,1,k)* norm
 end do
 !write(*,*) vnlin_drive
 end if
+
+end subroutine
+
+
+subroutine check()
+
+ use error, only : neo_abort, neo_warn
+ implicit none
+ 
+ integer :: i,j,k
+ real :: soSmall
+ 
+ soSmall= 1.E-15
+ 
+ if ( nreg .ne. 1) call neo_warn('only nreg=1 (banana regime) tested, or switched off')
+ if ( ic .ne. 1) call neo_warn('only ic=1 (banana contribution) tested, or switched off')
+ if ( isel .ne. 2) call neo_warn('only isel=2 (circular geometry) tested, or switched off')
+ 
+ if ( nc(1).ne.1 .or. zsp(1,1).ne.-1 ) call neo_abort('species 1 are the electrons')
+ 
+ do i= 1,ns
+   if ( m(i) == 0.) call neo_abort('set mass of all species')
+   if ( T(i) == 0.) call neo_abort('set temperautre of all species')
+   do j=1,nc(i)
+     if ( abs(zsp(i,j)) < soSmall) call neo_abort('set charge number for all charge states')
+     if ( abs(den(i,j)) < soSmall) call neo_abort('set density for all charge states')
+     if ((.not.l_test).and. abs(ds(i,j,1)) < soSmall) call neo_abort('set pressure gradient for all charge states')
+     if ((.not.l_test).and. abs(ds(i,j,2)) < soSmall) call neo_abort('set temperautre gradient for all charge states')
+   end do
+ end do
 
 end subroutine
 

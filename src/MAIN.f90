@@ -7,9 +7,9 @@
  
  program main
 
-      use init, only : get_ns_and_ncm, set_defaults, read_input 
+      use init, only : get_ns_and_ncm, set_defaults, read_input, l_test 
       use memory, only : alloc_all!, dealloc_all
-      use init, only : bn,e,q,t, cff, ns ,nc, den, ic,vnlin
+      use init, only : bn,e,q,t, cff, ns ,nc, den, ic,vnlin, check
       use collision, only :tau
       use friction, only : fric_coeff
 
@@ -20,12 +20,15 @@
       real :: bootstrap
       call get_ns_and_ncm()  !read number of species and charge states from input
       call alloc_all()       !allocate and initialize all dynamic arrays
-     ! call set_defaults()    !set_defaults
+      call set_defaults()    !set_defaults
       call read_input()      !read all input parameters
       call vnlin()           ! reads vlin_drive from file
+      call check()           ! check species namelist and limited functionality
       call fric_coeff()      !calculate la and lab, also calls geom atm.
       call neoart(cff)       !main calculation
       
+      if(l_test) then
+      write(*,*) 'TESTCASE, (set l_test.false (==default) if not running test1 or test2)'       
       write(*,*) 'HEAT FLUX'
       do i= 1, ns
         write(*,*) 'by species', i
@@ -44,7 +47,25 @@
 
         end do
       end do
+      write(*,*) 'THE BOOTSTRAP CURRENT'
+      bootstrap=0
+      do i= 1, ns
+        do j= 1, nc(i)
+          bootstrap = bootstrap + cff(i,j,3)
+        end do
+      end do
+      
+      NORM = SQRT(E)*BN/(1600.*Q*DEN(1,1)*T(1))
+      write(*,*) bootstrap*norm
+      write(*,*)
+      
+      write(*,*) 'THE POLOIDAL FLOW'
+      NORM = 1.E-3*BN**2*E/(Q*T(2))
+       write(*,*) cff(2,1,4)*norm
+       write(*,*)
 
+      else    
+      
       write(*,*)
       write(*,*) 'THE BOOTSTRAP CURRENT in MA/m^2'
       bootstrap=0
@@ -53,21 +74,14 @@
           bootstrap = bootstrap + cff(i,j,3)
         end do
       end do
-      
-      !!!! IF RUNNING TESTS USE THIS NORM
-!       NORM = SQRT(E)*BN/(1600.*Q*DEN(1,1)*T(1))
-!       write(*,*) bootstrap*norm
-      !!!!!
       999   FORMAT(F9.3)       
        write(*,999) bootstrap*1.E-6
        write(*,*)
        
+       end if
        
-      write(*,*)
-      write(*,*) 'THE POLOIDAL FLOW'
-      NORM = 1.E-3*BN**2*E/(Q*T(2))
-       write(*,*) cff(2,1,4)*norm
-       write(*,*)
+       
+
 
 
 end program      

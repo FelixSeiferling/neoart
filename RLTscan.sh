@@ -5,7 +5,7 @@ order=3
 cd $CODEDIR
 
 echo 'RLT scan with ITER parameters:'
-for RLT in 2 4 6; do
+for RLT in 2 4 6 8 10; do
 echo 'RLT='$RLT
 echo 'VNLIN_OFF: '
 dp=$(echo " $RLT+2.2" | bc)

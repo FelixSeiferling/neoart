@@ -32,7 +32,8 @@ ic = 2           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED.
                  ! 2 PFIRSCH SCHLUETER CONTRIBUTION
                  ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
 l_vnlin = .false. ! logical switch, if true requires "vnlin_moments_AV.dat" 
-                 ! reads turbulent drive terms, see namelist below                 
+                 ! reads turbulent drive terms, see namelist below 
+l_test = .true.  ! for running test 1 or 2
 /
 !-------------------------------------------------------------
 &GEOMETRY        ! This namelist is GEOMETRY
@@ -53,7 +54,7 @@ Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE 
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 !ELECTRONS!
-mas = 5.446E-4  ! mass of species in units of proton mass
+mas = 5.44617E-4  ! mass of species in units of proton mass
 temp = 0.001       ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = -1          ! charge number of charge states

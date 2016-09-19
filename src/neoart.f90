@@ -124,7 +124,8 @@ subroutine neoart(coeff)
      
      use init, only :  ns,nc, ncm, zsp, m, t, den, ds, ic,    &
                        & rho ,eps, ISEL, ISHOT, nreg, & 
-                       & sigma, nleg, nenergy, ncof, eparr
+                       & sigma, nleg, nenergy, ncof, eparr, &
+                       & vnlin_drive
       use collision, only : tau, xi
       use collision, only : colxi
       use friction, only : la, lab
@@ -140,58 +141,61 @@ subroutine neoart(coeff)
       real :: EPARN, DUM
       real, dimension(ns,ncm,4) :: coeff, coeffc
       real, dimension(ns,ncm,3) :: uai
-
-!      if  ((NEOFRC).AND.(NEOGEO)) CALL PERR(16)
- 
-!     if THE FRICTION AND VISCOSITY COEFFICIENTS ARE NEWLY CAL-
-!     CULATED THEN GO THROUGH THE FOLLOWING LOOP. 
-      
-
+   
       
       coeff=0.
       coeffc=0.
-    !  uai=0.
-!     NORMALIZE THE EPARR
+     !! confusing renormalization:
+     !! 1.E-3 : Gradients are in keV
+     !! Houlberg gradient terms with 2*pi*R B_t/dpsidr; we multiply whole eq. with dpsidr/rbt
+     !! i can't find the 2pi
+!     NORMALIZE THE EPARR   
       EPARN = 1.E-3*DPSIDR*R2I*EPARR 
-!      write(*,*) eparn
-!     CALCULATE THE CLASSICAL TRANSPORT CONTRIBUTION
-      if ((IC.EQ.0).OR.(IC.EQ.3)) THEN
-      if(isel==1) call neo_warn('classical contribution set to 0 for isel=1. &
-                    &            not yet implemented')
-      call class(coeffc)
-!       ADD THE CORRECT NORMALIZATION FACTOR, PUT RESULT 
-!       IN COEFF AND CLEAR COEFFC
-        do i = 1, ns
-          do j = 1, nc(i)
-            do k = 1, 2
-              COEFF(I,J,K) = COEFF(I,J,K)+ COEFFC(I,J,K)* &
-     &          GCLASS/(1.6022E-22*ZSP(I,J)*DPSIDR**2) 
-              COEFFC(I,J,K) = 0.
-            end do
-          end do
-        end do
-      end if     
-   
-
-!     CALCULATE THE PFIRSCH SCHLUETER CONTRIBUTION
-      coeffc=0.
-      if ((IC.EQ.2).OR.(IC.EQ.3)) THEN
-        call PS(uai,coeffc)
-!       ADD THE CORRECT NORMALIZATION FACTOR, PUT RESULT IN 
-!       COEFF AND CLEAR COEFFC
-        do i = 1, ns
-          do j = 1, nc(i)
-            do k = 1, 2
-              coeff(i,j,k) = coeff(i,j,k) - coeffc(i,j,k)* &
-     &          (1.- B2AV*BI2A)*(RBT/DPSIDR)**2/ &
-     &          (1.60E-22*ZSP(I,J)*b2av)
-              coeffc(i,j,k) = 0.
-            end do
-          end do
-        end do
-      end if
+!     renormalize vnlin terms to match other terms
+      do i = 1, ns ; do j = 1, nc(i) ; do k = 1, 3
+        vnlin_drive(i,j,k) = vnlin_drive(i,j,k)*1.E-3*dpsidr/rbt
+      end do ; end do ; end do 
+! ONLY BANANA PLATEAU AT THE MOMENT   !!!!
 
 
+! !     CALCULATE THE CLASSICAL TRANSPORT CONTRIBUTION
+!       if ((IC.EQ.0).OR.(IC.EQ.3)) THEN
+!       if(isel==1) call neo_warn('classical contribution set to 0 for isel=1. &
+!                     &            not yet implemented')
+!       call class(coeffc)
+! !       ADD THE CORRECT NORMALIZATION FACTOR, PUT RESULT 
+! !       IN COEFF AND CLEAR COEFFC
+!         do i = 1, ns
+!           do j = 1, nc(i)
+!             do k = 1, 2
+!               COEFF(I,J,K) = COEFF(I,J,K)+ COEFFC(I,J,K)* &
+!      &          GCLASS/(1.6022E-22*ZSP(I,J)*DPSIDR**2) 
+!               COEFFC(I,J,K) = 0.
+!             end do
+!           end do
+!         end do
+!       end if     
+!    
+! 
+! !     CALCULATE THE PFIRSCH SCHLUETER CONTRIBUTION
+!       coeffc=0.
+!       if ((IC.EQ.2).OR.(IC.EQ.3)) THEN
+!         call PS(uai,coeffc)
+! !       ADD THE CORRECT NORMALIZATION FACTOR, PUT RESULT IN 
+! !       COEFF AND CLEAR COEFFC
+!         do i = 1, ns
+!           do j = 1, nc(i)
+!             do k = 1, 2
+!               coeff(i,j,k) = coeff(i,j,k) - coeffc(i,j,k)* &
+!      &          (1.- B2AV*BI2A)*(RBT/DPSIDR)**2/ &
+!      &          (1.60E-22*ZSP(I,J)*b2av)
+!               coeffc(i,j,k) = 0.
+!             end do
+!           end do
+!         end do
+!       end if
+! 
+! 
       coeffc=0.
       if ((IC.EQ.1).OR.(IC.EQ.3)) then
        call bp(eparn,coeffc)

@@ -48,13 +48,13 @@ e = 0.19         ! inverse aspect ration epsilon
 q = 1.4           ! safety factor
 Rn = 1.65          ! major radius in units of R_ref= ?
 Bn = 2.5         ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
-!Eparr = 0.1      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE.
-Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
+Eparr = -0.33      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE.
+
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 !ELECTRONS!
-mas = 5.446E-4  ! mass of species in units of proton mass
+mas = 5.44617E-4  ! mass of species in units of proton mass
 temp = 1.5      ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = -1          ! charge number of charge states

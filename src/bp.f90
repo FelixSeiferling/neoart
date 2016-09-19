@@ -84,10 +84,7 @@ subroutine bp(eparn,coeff)
  end do ; end do ; end do 
  
  
- !renormalize vnlin terms to match other terms
-  do i = 1, ns ; do j = 1, nc(i) ; do k = 1, 3
-    vnlin_drive(i,j,k) = vnlin_drive(i,j,k)*1.E-3*dpsidr/rbt
- end do ; end do ; end do 
+
 ! calculate the viscosity
     do i = 1, ns ;  do j = 1, nc(i)
 
@@ -173,11 +170,6 @@ subroutine bp(eparn,coeff)
     bt((i-1)*3+k) = 0.
     if (k.le.nleg) then 
        do j=1, nc(i); do l=1,3
-!         vnlin_drive(i,j,l)=.0    !was for testing purposes
-!         if(l==1 .and. vnlin_order.ge.1) then
-!          vnlin_drive(i,j,l)= 1.6*xi(i,j)*zsp(i,j)*den(i,j)*4.2263893468883363E-004
-!          !write(*,*) vnlin_drive(i,j,l)
-!         end if
         bt((i-1)*3+k) = bt((i-1)*3+k) + aaa(k,l,i,j)*vnlin_drive(i,j,l)   !! vnlin turb drive response
       end do; end do
 
