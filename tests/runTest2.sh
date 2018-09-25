@@ -1,3 +1,4 @@
+# PS regime not really tested otherwise
 #!/bin/bash
 
 CODEDIR=~/NEOART_2.0/
