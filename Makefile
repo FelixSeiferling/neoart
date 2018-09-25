@@ -1,3 +1,4 @@
+#original tests from master dont work with the modifications made
 SUBDIRS=src #tests
 
 all: src 
