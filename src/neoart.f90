@@ -148,7 +148,7 @@ subroutine neoart(coeff)
      !! confusing renormalization:
      !! 1.E-3 : Gradients are in keV
      !! Houlberg gradient terms with 2*pi*R B_t/dpsidr; we multiply whole eq. with dpsidr/rbt
-     !! i can't find the 2pi
+     !! i can't find the 2pi, but the benchmark looks good...
 !     NORMALIZE THE EPARR   
       EPARN = 1.E-3*DPSIDR*R2I*EPARR 
 !     renormalize vnlin terms to match other terms

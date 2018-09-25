@@ -98,6 +98,8 @@ integer :: vnlin_contribution ! 0(default) for all, 1: ExB only; 2: Curv only; 3
 real, save, allocatable :: vnlin_drive(:,:,:)
 logical :: l_vnlin
 logical :: l_test
+logical :: l_scan
+logical :: adiabatic
 
 contains
 
@@ -147,7 +149,8 @@ subroutine set_defaults()
  implicit none
  !default
  l_test=.false.
- 
+ l_scan = .false.
+ adiabatic = .false.
  eps=1E-5
  nreg=1
  sigma=1
@@ -156,6 +159,7 @@ subroutine set_defaults()
  ncof=1
  ic=1
  l_vnlin = .false.
+ 
  
  isel=2
  rho=0.05
@@ -182,8 +186,8 @@ subroutine read_input()
 use error, only : neo_abort
 implicit none
 
-namelist /control/ ns, eps, nreg, sigma1, sigma2,&
-& sigma3, sigma4, nleg, nenergy, ncof, ic, l_vnlin, l_test
+namelist /control/ ns, adiabatic, eps, nreg, sigma1, sigma2,&
+& sigma3, sigma4, nleg, nenergy, ncof, ic, l_vnlin, l_test, l_scan
 
 !neogeo, neofrc
 namelist /geometry/ isel, ishot, rho, e, q, Rn, Bn, eparr
@@ -214,6 +218,7 @@ sigma(4)=sigma4
 write(31,*) '------------------------------------------------'
 write(31,*) '&Control'
 write(31,*) 'ns = ', ns
+write(31,*) 'adiabatic =', adiabatic
 write(31,*) 'eps = ', eps   
 write(31,*) 'nreg = ', nreg 
 write(31,*) 'sigma1 = ', sigma(1)   
@@ -227,8 +232,8 @@ write(31,*) 'ncof = ', ncof
 ! write(31,*) 'neofrc = ', neofrc
 write(31,*) 'ic = ', ic
 write(31,*) 'l_vnlin = ', l_vnlin
-write(31,*) 'l_vnlin = ', l_test
-
+write(31,*) 'l_test = ', l_test
+write(31,*) 'l_scan = ', l_scan
  
 !GEOM INPUT
 read(30,NML=geometry, iostat=io_stat)
@@ -304,7 +309,8 @@ end subroutine
 
 subroutine vnlin()
 
-real :: vnlin_in(3,3)
+real :: vnlin_in_ion(3,3)
+real :: vnlin_in_electron(3,3)
 real :: dum, dum1
 integer :: k,l, io_stat
 real :: rs, norm, vth
@@ -316,61 +322,117 @@ open(31, file='vnlin_moments_AV.dat', iostat=io_stat)
                 &  or set vnlin_Source=.false. '
    stop 1
  end if 
- 
+
  do k=1,3
    do l=1,3
-     read(31,*) vnlin_in(k,l), dum, dum1
+     read(31,*) vnlin_in_ion(k,l), dum, dum1
    end  do
  end do
- 
+ do k=1,3
+   do l=1,3
+     read(31,*) vnlin_in_electron(k,l), dum, dum1
+   end  do
+ end do
+ if(adiabatic) then   ! set electron drive to zero for testing purposes
+  vnlin_in_electron=0
+ end if
 
  vnlin_drive=.0
  
  if(l_vnlin) then
- ds=ds/(rn)     !! dirty solution to get same gradients as in gkw
-
+ ds=ds/(rn)     !! dirty solution to use the same gradients as in gkw input
+                !! 
+ 
+ ! note that only a single charge state is supported
+ !drive of selcted order and contributions for ion species
+  
+ 
  do k=1,3
    if(vnlin_order.ge.k) then
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
-       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(1,k)
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in_ion(1,k)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
-       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(2,k)
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in_ion(2,k)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
-       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in(3,k)
+       & vnlin_drive(2,1,k) = vnlin_drive(2,1,k) + vnlin_in_ion(3,k)
      end if
  end do
  
  if(vnlin_order .eq. -1) then
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
-       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(1,1)
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in_ion(1,1)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
-       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(2,1)
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in_ion(2,1)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
-       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in(3,1)
+       & vnlin_drive(2,1,1) = vnlin_drive(2,1,1) + vnlin_in_ion(3,1)
    end if
  if(vnlin_order .eq. -2) then
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
-       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(1,2)
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in_ion(1,2)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
-       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(2,2)
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in_ion(2,2)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
-       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in(3,2)
+       & vnlin_drive(2,1,2) = vnlin_drive(2,1,2) + vnlin_in_ion(3,2)
    end if
  if(vnlin_order .eq. -3) then
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
-       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(1,3)
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in_ion(1,3)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
-       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(2,3)
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in_ion(2,3)
      if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
-       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in(3,3)
+       & vnlin_drive(2,1,3) = vnlin_drive(2,1,3) + vnlin_in_ion(3,3)
+ end if
+
+
+ !drive of selcted order and contributions for electrons
+ 
+ do k=1,3
+   if(vnlin_order.ge.k) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(1,1,k) = vnlin_drive(1,1,k) + vnlin_in_electron(1,k)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(1,1,k) = vnlin_drive(1,1,k) + vnlin_in_electron(2,k)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(1,1,k) = vnlin_drive(1,1,k) + vnlin_in_electron(3,k)
+     end if
+ end do
+
+
+ if(vnlin_order .eq. -1) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(1,1,1) = vnlin_drive(1,1,1) + vnlin_in_electron(1,1)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(1,1,1) = vnlin_drive(1,1,1) + vnlin_in_electron(2,1)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(1,1,1) = vnlin_drive(1,1,1) + vnlin_in_electron(3,1)
    end if
-!rhostar
-rs=sqrt(2*m(2)*T(2)*1.6022E-16)/(zsp(2,1)*1.6022E-19*Bn*Rn)
+ if(vnlin_order .eq. -2) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(1,1,2) = vnlin_drive(1,1,2) + vnlin_in_electron(1,2)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(1,1,2) = vnlin_drive(1,1,2) + vnlin_in_electron(2,2)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(1,1,2) = vnlin_drive(1,1,2) + vnlin_in_electron(3,2)
+   end if
+ if(vnlin_order .eq. -3) then
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.1) &
+       & vnlin_drive(1,1,3) = vnlin_drive(1,1,3) + vnlin_in_electron(1,3)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.2) &
+       & vnlin_drive(1,1,3) = vnlin_drive(1,1,3) + vnlin_in_electron(2,3)
+     if(vnlin_contribution.eq.0 .or. vnlin_contribution.eq.3) &
+       & vnlin_drive(1,1,3) = vnlin_drive(1,1,3) + vnlin_in_electron(3,3)
+   end if
+!input values are normalized. denormalization:   
+!rhostar from gkw, reference larmor radius over major radius
+!reference mass and velocity for deuterium are used!!!
+rs=sqrt(2*m(2)*T(2)*1.6022E-16)/(1.6022E-19*Bn*Rn)
+!reference temperature and density have to be the same for i and e
 norm= rs*rs*Bn*den(2,1)*1E19*T(2)*1.6022E-16/Rn   ! 
-!write(*,*) rs, norm
+!write(*,*) rs
 do k=1,3
+vnlin_drive(1,1,k)=vnlin_drive(1,1,k)* norm
 vnlin_drive(2,1,k)=vnlin_drive(2,1,k)* norm
-end do
+end do   
 !write(*,*) vnlin_drive
 end if
 
@@ -387,9 +449,9 @@ subroutine check()
  
  soSmall= 1.E-15
  
- if ( nreg .ne. 1) call neo_warn('only nreg=1 (banana regime) tested, or switched off')
- if ( ic .ne. 1) call neo_warn('only ic=1 (banana contribution) tested, or switched off')
- if ( isel .ne. 2) call neo_warn('only isel=2 (circular geometry) tested, or switched off')
+ if ( nreg .ne. 1) call neo_abort('only nreg=1 (banana regime) tested, dont use')
+ if ( ic .ne. 1) call neo_abort('only ic=1 (banana contribution) tested, dont use')
+ if ( isel .ne. 2) call neo_abort('only isel=2 (circular geometry) tested, dont use')
  
  if ( nc(1).ne.1 .or. zsp(1,1).ne.-1 ) call neo_abort('species 1 are the electrons')
  
@@ -403,7 +465,16 @@ subroutine check()
      if ((.not.l_test).and. abs(ds(i,j,2)) < soSmall) call neo_abort('set temperautre gradient for all charge states')
    end do
  end do
-
+ 
+ if (ns > 2 .and. l_vnlin ) &
+ & call neo_abort('lvnlin:please improve: read in of vnlin_moments_AV.dat only supports ion and electrons')
+ if ( l_vnlin .and. abs(T(2)-T(1))>soSmall ) &
+ & call neo_abort('lvnlin please improve: temperature of ions and electrons have to be equal')
+ if ( l_vnlin .and. abs(den(2,1)-den(1,1))>soSmall ) &
+ & call neo_abort('lvnlin:density of ions and electrons have to be equal (single charge state atm)')
+ if ( l_vnlin .and. (nc(1)>1 .or. nc(2)>1) ) call neo_abort('lvnlin: only one charge state supported')
+ 
+ 
 end subroutine
 
 end module init

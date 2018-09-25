@@ -68,7 +68,6 @@ subroutine bp(eparn,coeff)
   real ::  bt, upar, mu
   real :: visc, aaa, ainv
   real :: dsNew
-  logical :: nltest
 
 
   dimension :: akp(3,3), d(3*ns), coeff(ns,ncm,4)
@@ -92,7 +91,6 @@ subroutine bp(eparn,coeff)
         visc(k,l,i,j) = 0.
       end do ; end do 
 
-      nltest = .false.
       call viscos(i,j,mu)
 
       do k = 1, nleg ; do l = 1, nleg 
@@ -170,14 +168,14 @@ subroutine bp(eparn,coeff)
     bt((i-1)*3+k) = 0.
     if (k.le.nleg) then 
        do j=1, nc(i); do l=1,3
-        bt((i-1)*3+k) = bt((i-1)*3+k) + aaa(k,l,i,j)*vnlin_drive(i,j,l)   !! vnlin turb drive response
+        bt((i-1)*3+k) = bt((i-1)*3+k) + aaa(k,l,i,j)*xi(i,j)*vnlin_drive(i,j,l)   !! isotopic vnlin turb drive response
       end do; end do
 
       do j = 1, nc(i)
-        bt((i-1)*3+k) = bt((i-1)*3+k)+1.6*xi(i,j)*zsp(i,j)* &   !! charge species averaged E-field response
+        bt((i-1)*3+k) = bt((i-1)*3+k)+1.6*xi(i,j)*zsp(i,j)* &   !! isotopic E-field response
                       & den(i,j)*aaa(k,1,i,j)*eparn
       end do 
-      do l = 1, 3 ; do mt = 1, 2 ; do j = 1, nc(i)   !! thermodynamic gradient response 
+      do l = 1, 3 ; do mt = 1, 2 ; do j = 1, nc(i)   !! isotopic thermodynamic gradient response 
          bt((i-1)*3+k) = bt((i-1)*3+k) - xi(i,j)*       &
             &   aaa(k,l,i,j)*visc(l,mt,i,j)*dsNew(i,j,mt)
        end do ; end do ; end do 

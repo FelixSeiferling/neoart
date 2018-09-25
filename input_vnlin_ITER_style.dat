@@ -1,9 +1,9 @@
-! Sample input for NEOART
+! Input using ITER geomertry parameters
 !-------------------------------------------------------------
 &CONTROL         ! This namelist is CONTROL
 ns = 2           ! number of species (DEFAULT=2) count electrons. 
                  ! there must be ns entries in Species with electrons first
-adiabatic = .false. !                 
+adiabatic = .false. !
 eps = 1E-5      ! required accuracy
 nreg = 1         ! parameter for viscosity calculation.
                  ! 0=DEFAULT: The banana and pfirsch schlueter contributions are weighted
@@ -36,7 +36,7 @@ l_vnlin = .true. ! logical switch, if true requires "vnlin_moments_AV.dat"
                  ! reads turbulent drive terms, see namelist below
                  ! ATTENTION: This switch involes a dirty hack
                  ! renormalizing the gradients in this input file to fit GKW
-l_scan= .false.  ! dirty                 
+l_scan= .false.  ! dirty
 /
 !-------------------------------------------------------------
 &GEOMETRY        ! This namelist is GEOMETRY
@@ -50,29 +50,28 @@ ishot = 0        ! !shot number, only used when isel=3
 rho = 0.05       ! !flux surface label
 e = 0.19         ! inverse aspect ration epsilon
 q = 1.4           ! safety factor
-Rn = 1.65          ! major radius in units of R_ref= ?
-Bn = 2.5         ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
-Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE.
-
+Rn = 6.2          ! major radius in units of R_ref= ?
+Bn = 5.3         ! magnetic field strength in midplane, i.e. poloidal angle= pi/2
+Eparr = 0.0      ! THE PARALLEL ELECTRIC FIELD TIMES THE MAJOR RADIUS, I.E. THE LOOP VOLTAGE. 
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 !ELECTRONS!
 mas = 5.44617E-4  ! mass of species in units of proton mass
-temp = 1.5      ! temperature of species in units of keV.
+temp = 8.      ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = -1          ! charge number of charge states
-n = 5.0         ! density of charge states in units of 1E19 m^-3
-dp = 9.1         ! electron pressure gradient
+n = 10.0         ! density of charge states in units of 1E19 m^-3
+dp = 9.1         ! electron pressure gradient 
 dt = 6.9         ! electron temperature gradient
 /
 !-------------------------------------------------------------
 &SPECIES        ! This namelist is SPECIES. number of namelists must match ns.
 mas = 2.        ! mass of species in units of proton mass
-temp = 1.5      ! temperature of species in units of keV.
+temp = 8.      ! temperature of species in units of keV.
 ncharge = 1     ! number of charge states
 Z = 1           ! charge number of charge states
-n = 5.          ! density of charge states in units of 1E19 m^-3
+n = 10.          ! density of charge states in units of 1E19 m^-3
 dp = 9.1         ! pressure gradient
 dt = 6.9         ! temperature gradient
 /

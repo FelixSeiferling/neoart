@@ -33,6 +33,9 @@ ic = 3           ! THE CONTRIBUTION FOR WHICH THE COEFFICIENTS ARE CALCULATED.
                  ! 3 BOTH BANANA-PLATEAU, CLASSICAL, AND P.S.
 l_vnlin = .true. ! logical switch, if true requires "vnlin_moments_AV.dat" 
                  ! reads turbulent drive terms, see namelist below
+                 ! part of dirty hack: if true, gradients from input 
+                 ! correspond to gkw input
+l_scan= .false.  ! switch to simplify console output, cause i was too lazy
 /
 !-------------------------------------------------------------
 &GEOMETRY        ! This namelist is GEOMETRY
