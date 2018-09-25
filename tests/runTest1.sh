@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#this should work modify directories accordingly
 CODEDIR=~/NEOART_2.0/
 
 cd $CODEDIR
