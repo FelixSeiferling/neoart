@@ -1,13 +1,16 @@
 NEOART 2.0
 ========
-This is a modifaction of the original code with very limited functionality.
+This is a modifaction of the original code 
+https://github.com/Neoclassics/neoart
+with very limited functionality.
+
 It is only designed to calculate the current in the banana platea using additional source terms
 connected with the turbulent velocity non-linearity. 
 See ADDPAPER HERE
 
-NOTE: This project was not designed for widespread use, i.e. there is little error catching and it it works only
-properly in a specific fashion which is poorly documented. Do not use if you are absolutely sure what is happening.
-absolutely no warranty for any results obtained.git
+NOTE: This code was only designed for personal use, i.e. there is little error catching and it is only usable
+in a specific fashion which is not really documented. I recommend to use the original code and expand on that.
+Absolutely no warranty for any results obtained.
 
 
 NEOART
