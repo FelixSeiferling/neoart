@@ -5,8 +5,10 @@ https://github.com/Neoclassics/neoart
 with very limited functionality.
 
 It is only designed to calculate the current in the banana platea using additional source terms
-connected with the turbulent velocity non-linearity. 
-See ADDPAPER HERE
+connected with the turbulent velocity non-linearity:
+
+Seiferling, F., Peeters, A. G., Buchholz, R., Grosshauser, S. R., Rath, F., & Weikl, A. (2018).
+On turbulence driven stationary electric currents in a tokamak. Physics of Plasmas, 25(10), 102305.
 
 NOTE: This code was only designed for personal use, i.e. there is little error catching and it is only usable
 in a specific fashion which is not really documented. I recommend to use the original code and expand on that.
